@@ -2,18 +2,12 @@ from django.db import models
 
 
 class Author(models.Model):
-    """
-        This class represents an Author. \n
-        Attributes:
-        -----------
-        param name: Describes name of the author
-        type name: str max_length=20
-        param surname: Describes last name of the author
-        type surname: str max_length=20
-        param patronymic: Describes middle name of the author
-        type patronymic: str max_length=20
+    name = models.CharField(max_length=20, default="Unknown")
+    surname = models.CharField(max_length=20, default="Unknown")
+    patronymic = models.CharField(max_length=20, default="Unknown")
 
-    """
+    def __str__(self):
+        return f"Author: {self.name} {self.surname} {self.patronymic}"
 
     def __str__(self):
         """

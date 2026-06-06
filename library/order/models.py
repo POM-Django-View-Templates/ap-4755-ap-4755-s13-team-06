@@ -2,6 +2,23 @@ from django.db import models
 
 
 class Order(models.Model):
+    user = models.ForeignKey(
+        "authentication.CustomUser",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    book = models.ForeignKey(
+        "book.Book",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    end_at = models.DateTimeField(null=True, blank=True)
+    plated_end_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         """

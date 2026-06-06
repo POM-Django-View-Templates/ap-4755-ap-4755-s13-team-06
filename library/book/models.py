@@ -2,31 +2,16 @@ from django.db import models
 
 
 class Book(models.Model):
-    """
-        This class represents an Book. \n
-        Attributes:
-        -----------
-        param name: Describes name of the book
-        type name: str max_length=128
-        param description: Describes description of the book
-        type description: str
-        param count: Describes count of the book
-        type count: int default=10
-        param authors: list of Authors
-        type authors: list->Author
-    """
+    name = models.CharField(max_length=128, default="Unknown")
+    description = models.TextField(default="Unknown")
+    count = models.IntegerField(default=10)
+    authors = models.ManyToManyField("author.Author", related_name="books", blank=True)
 
     def __str__(self):
-        """
-        Magic method is redefined to show all information about Book.
-        :return: book id, book name, book description, book count, book authors
-        """
+        return f"{self.name}"
 
     def __repr__(self):
-        """
-        This magic method is redefined to show class and id of Book object.
-        :return: class, id
-        """
+        return f"Book(id={self.id})"
 
     @staticmethod
     def get_by_id(book_id):

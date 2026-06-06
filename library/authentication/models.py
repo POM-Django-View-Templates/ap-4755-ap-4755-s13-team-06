@@ -1,3 +1,4 @@
+from django.db import models
 from django.contrib.auth.base_user import AbstractBaseUser
 
 ROLE_CHOICES = (
@@ -7,30 +8,16 @@ ROLE_CHOICES = (
 
 
 class CustomUser(AbstractBaseUser):
-    """
-        This class represents a basic user. \n
-        Attributes:
-        -----------
-        param first_name: Describes first name of the user
-        type first_name: str max length=20
-        param last_name: Describes last name of the user
-        type last_name: str max length=20
-        param middle_name: Describes middle name of the user
-        type middle_name: str max length=20
-        param email: Describes the email of the user
-        type email: str, unique, max length=100
-        param password: Describes the password of the user
-        type password: str
-        param created_at: Describes the date when the user was created. Can't be changed.
-        type created_at: int (timestamp)
-        param updated_at: Describes the date when the user was modified
-        type updated_at: int (timestamp)
-        param role: user role, default role (0, 'visitor')
-        type updated_at: int (choices)
-        param is_active: user role, default value False
-        type updated_at: bool
+    first_name = models.CharField(max_length=20, null=True, blank=True)
+    last_name = models.CharField(max_length=20, null=True, blank=True)
+    middle_name = models.CharField(max_length=20, null=True, blank=True)
+    email = models.EmailField(max_length=100, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True, null=True)
+    role = models.IntegerField(choices=ROLE_CHOICES, default=0)
+    is_active = models.BooleanField(default=True)
 
-    """
+    USERNAME_FIELD = "email"
 
     def __str__(self):
         """
