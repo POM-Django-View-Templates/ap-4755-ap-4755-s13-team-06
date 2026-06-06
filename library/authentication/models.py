@@ -1,11 +1,24 @@
 from django.db import models
-from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 
 ROLE_CHOICES = (
     (0, 'visitor'),
     (1, 'admin'),
 )
 
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('Email обов\'язковий')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('role', 1)
+        return self.create_user(email, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser):
     first_name = models.CharField(max_length=20, null=True, blank=True)
@@ -18,6 +31,7 @@ class CustomUser(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
 
     USERNAME_FIELD = "email"
+    objects = CustomUserManager()
 
     def __str__(self):
         """
@@ -125,3 +139,21 @@ class CustomUser(AbstractBaseUser):
         """
         returns str role name
         """
+
+    @property
+    def is_staff(self):
+        """Дозволяє вхід в адмінку для бібліотекарів"""
+        return self.role == 1
+
+    @property
+    def is_superuser(self):
+        """Дає всі права в адмінці"""
+        return self.role == 1
+
+    def has_perm(self, perm, obj=None):
+        """Чи має юзер специфічні дозволи"""
+        return self.role == 1
+
+    def has_module_perms(self, app_label):
+        """Чи має юзер доступ до моделей в адмінці"""
+        return self.role == 1
