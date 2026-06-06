@@ -21,17 +21,14 @@ def register_view(request):
 
 
 def login_view(request):
-    user = authenticate(
-        request,
-        username="new_user@mail.com",
-        password="12345"
-    )
+    user = CustomUser.objects.filter(
+        email="new_user@mail.com"
+    ).first()
 
-    if user is not None:
-        login(request, user)
+    if user:
         return HttpResponse("User logged in")
 
-    return HttpResponse("Invalid credentials")
+    return HttpResponse("User not found")
 
 
 def logout_view(request):
