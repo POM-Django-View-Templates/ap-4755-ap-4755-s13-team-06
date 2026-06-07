@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.utils import timezone
+from django.shortcuts import render, redirect
 
 from .models import Order
 from book.models import Book
@@ -8,23 +9,7 @@ from authentication.models import CustomUser
 
 def orders_list(request):
     orders = Order.objects.all()
-
-    result = ""
-
-    for order in orders:
-        book_name = order.book.name if order.book else "No book"
-        user_email = order.user.email if order.user else "No user"
-        end_at = order.end_at if order.end_at else "Not returned"
-
-        result += (
-            f"Order #{order.id} | "
-            f"Book: {book_name} | "
-            f"User: {user_email} | "
-            f"End at: {end_at}<br>"
-        )
-
-    return HttpResponse(result)
-
+    return render(request, "order/order_list.html", {"orders": orders})
 
 def order_create(request):
     user = CustomUser.objects.first()
@@ -50,8 +35,7 @@ def order_close(request, pk):
         order = Order.objects.get(id=pk)
         order.end_at = timezone.now()
         order.save()
-
-        return HttpResponse("Order closed")
+        return redirect("orders_list")
 
     except Order.DoesNotExist:
         return HttpResponse("Order not found")

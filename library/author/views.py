@@ -1,30 +1,22 @@
+from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Author
 
 
 def authors_list(request):
     authors = Author.objects.all()
-
-    result = ""
-
-    for author in authors:
-        result += (
-            f"{author.id} "
-            f"{author.name} "
-            f"{author.surname} "
-            f"{author.patronymic}<br>"
-        )
-
-    return HttpResponse(result)
+    return render(request, "author/authors_list.html", {"authors": authors})
 
 def author_create(request):
-    Author.objects.create(
-        name="Test",
-        surname="Author",
-        patronymic="Middle"
-    )
+    if request.method == "POST":
+        Author.objects.create(
+            name=request.POST.get("name"),
+            surname=request.POST.get("surname"),
+            patronymic=request.POST.get("patronymic")
+        )
+        return HttpResponse("Author created")
 
-    return HttpResponse("Author created")
+    return render(request, "author/author_create.html")
 
 def author_delete(request, pk):
     try:

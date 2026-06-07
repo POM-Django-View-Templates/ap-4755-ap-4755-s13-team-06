@@ -3,35 +3,36 @@ from django.contrib.auth import authenticate, login, logout
 from .models import CustomUser
 
 def login_view(request):
-    """Вхід користувача"""
-    # Якщо користувач відправив дані з твоєї HTML-форми
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        
-        # Перевіряємо чи є такий юзер в базі
-        user = authenticate(request, email=email, password=password)
-        if user is not None:
-            login(request, user) # Логінимо
-            return redirect('book_list') # Перекидаємо на головну сторінку з книгами
-        else:
-            # Якщо пароль неправильний - повертаємо форму і передаємо їй помилку
-            return render(request, 'authentication/login.html', {'error': 'Неправильний email або пароль'})
-            
-    # Якщо це просто GET-запит (відкрили посилання) - показуємо твій HTML
+
+        user = CustomUser.objects.filter(email=email).first()
+
+        if user and user.check_password(password):
+            login(request, user)
+            return redirect('book_list')
+
+        return render(request, 'authentication/login.html', {
+            'error': 'Неправильний email або пароль'
+        })
+
     return render(request, 'authentication/login.html')
 
 def register_view(request):
-    """Реєстрація користувача"""
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
         role = request.POST.get('role', 0)
-        
+
+        if CustomUser.objects.filter(email=email).exists():
+            return render(request, 'authentication/register.html', {
+                'error': 'Користувач з таким email вже існує'
+            })
+
         if email and password:
-            # Створюємо юзера через наш CustomUserManager
             user = CustomUser.objects.create_user(
                 email=email,
                 password=password,
@@ -39,9 +40,9 @@ def register_view(request):
                 last_name=last_name,
                 role=int(role)
             )
-            login(request, user) # Одразу логінимо після реєстрації
+            login(request, user)
             return redirect('book_list')
-            
+
     return render(request, 'authentication/register.html')
 
 def logout_view(request):
